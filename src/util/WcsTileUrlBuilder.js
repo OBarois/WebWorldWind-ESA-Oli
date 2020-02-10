@@ -96,29 +96,48 @@ define([
                         "The coverage format is null or undefined."));
             }
 
-            var sector = tile.sector;
+            var requestUrl = WcsTileUrlBuilder.fixGetCoverageString(this.serviceAddress);
 
-            var sb = WcsTileUrlBuilder.fixGetCoverageString(this.serviceAddress);
-
-            if (sb.search(/service=wcs/i) < 0) {
-                sb = sb + "service=WCS";
+            if (requestUrl.search(/service=wcs/i) < 0) {
+                requestUrl += "SERVICE=WCS";
             }
 
-            sb = sb + "&request=GetCoverage";
-            sb = sb + "&version=" + this.wcsVersion;
-            sb = sb + "&coverage=" + this.coverageName;
-            sb = sb + "&format=" + coverageFormat;
-            sb = sb + "&width=" + tile.tileWidth;
-            sb = sb + "&height=" + tile.tileHeight;
+            requestUrl += "&REQUEST=GetCoverage";
+            requestUrl += "&VERSION=" + this.wcsVersion;
+            requestUrl += "&FORMAT=" + coverageFormat;
 
-            sb = sb + "&crs=" + this.crs;
-            sb = sb + "&bbox=";
-            sb = sb + sector.minLongitude + "," + sector.minLatitude + ",";
-            sb = sb + sector.maxLongitude + "," +sector. maxLatitude;
+            if (this.wcsVersion === "1.0.0") {
+                return this.buildUrl100(tile, requestUrl);
+            } else if (this.wcsVersion === "2.0.1" || this.wcsVersion === "2.0.0") {
+                return this.buildUrl20x(tile, requestUrl);
+            }
+        };
 
-            sb = sb.replace(" ", "%20");
+        // Internal use only
+        WcsTileUrlBuilder.prototype.buildUrl100 = function (tile, requestUrl) {
+            var sector = tile.sector;
 
-            return sb;
+            requestUrl += "&COVERAGE=" + this.coverageName;
+            requestUrl += "&CRS=" + this.crs;
+            requestUrl += "&WIDTH=" + tile.tileWidth;
+            requestUrl += "&HEIGHT=" + tile.tileHeight;
+            requestUrl += "&BBOX=" + sector.minLongitude + "," + sector.minLatitude + "," + sector.maxLongitude + "," + sector.maxLatitude;
+
+            return encodeURI(requestUrl);
+        };
+
+        // Internal use only
+        WcsTileUrlBuilder.prototype.buildUrl20x = function (tile, requestUrl) {
+            var sector = tile.sector;
+
+            requestUrl += "&coverageId=" + this.coverageName;
+            requestUrl += "&outputCRS=http://www.opengis.net/def/crs/EPSG/0/4326";
+            requestUrl += "&size=x(" + tile.tileWidth + ")";
+            requestUrl += "&size=y(" + tile.tileHeight + ")";
+            requestUrl += "&subset=x,http://www.opengis.net/def/crs/EPSG/0/4326(" + sector.minLongitude + "," + sector.maxLongitude + ")";
+            requestUrl += "&subset=y,http://www.opengis.net/def/crs/EPSG/0/4326(" + sector.minLatitude + "," + sector.maxLatitude + ")";
+
+            return encodeURI(requestUrl);
         };
 
         // Intentionally not documented.
