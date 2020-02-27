@@ -17,7 +17,8 @@
 /**
  * @exports TiledElevationCoverage
  */
-define(['../util/AbsentResourceList',
+define(['../formats/aaigrid/AAIGridReader',
+        '../util/AbsentResourceList',
         '../geom/Angle',
         '../error/ArgumentError',
         '../globe/ElevationCoverage',
@@ -32,7 +33,8 @@ define(['../util/AbsentResourceList',
         '../util/WWMath',
         '../util/WWUtil'
     ],
-    function (AbsentResourceList,
+    function (AAIGridReader,
+              AbsentResourceList,
               Angle,
               ArgumentError,
               ElevationCoverage,
@@ -587,7 +589,8 @@ define(['../util/AbsentResourceList',
                         if (xhr.status === 200) {
                             if (contentType === elevationCoverage.retrievalImageFormat
                                 || contentType === "text/plain"
-                                || contentType === "application/octet-stream") {
+                                || contentType === "application/octet-stream"
+                                || contentType.substring(0, 17) === "multipart/related") {
                                 Logger.log(Logger.LEVEL_INFO, "Elevations retrieval succeeded: " + url);
                                 elevationCoverage.loadElevationImage(tile, xhr);
                                 elevationCoverage.absentResourceList.unmarkResourceAbsent(tile.tileKey);
@@ -644,7 +647,7 @@ define(['../util/AbsentResourceList',
         // Intentionally not documented.
         TiledElevationCoverage.prototype.loadElevationImage = function (tile, xhr) {
             var elevationImage = new ElevationImage(tile.sector, tile.tileWidth, tile.tileHeight),
-                geoTiff;
+                geoTiff, aaiGrid;
 
             if (this.retrievalImageFormat === "application/bil16") {
                 elevationImage.imageData = new Int16Array(xhr.response);
@@ -656,6 +659,10 @@ define(['../util/AbsentResourceList',
                 geoTiff = new GeoTiffReader(xhr.response);
                 elevationImage.imageData = geoTiff.getImageData();
                 elevationImage.size = elevationImage.imageData.length * geoTiff.metadata.bitsPerSample[0] / 8;
+            } else if (this.retrievalImageFormat === "image/x-aaigrid") {
+                aaiGrid = new AAIGridReader(xhr.response);
+                elevationImage.imageData = aaiGrid.getImageData();
+                elevationImage.size = elevationImage.imageData.length;
             }
 
             if (elevationImage.imageData) {
