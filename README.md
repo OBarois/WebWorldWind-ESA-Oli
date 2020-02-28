@@ -10,6 +10,8 @@ The main differences are:
 - Exporter for GeoJSON
 - HeatMap Layer
 - New API for elevation data
+- WCS 2.0.1 protocol for elevation data
+- AAIGrid format for elevation data
 - Support for embedded resources in KMZ
 - Allow setting canvas element instead of ID
 - Improved Collada rendering (faster and larger models supported)
