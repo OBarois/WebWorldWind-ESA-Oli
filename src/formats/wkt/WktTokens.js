@@ -133,7 +133,7 @@ define([
      * @return {boolean} True if it is either Number or - or .
      */
     WktTokens.prototype.isNumeric = function (c) {
-        return c >= '0' && c <= '9' || c == '.' || c == '-';
+        return c >= '0' && c <= '9' || c == '.' || c == '-' || c == 'e' || c == 'E';
     };
 
     /**
@@ -164,7 +164,7 @@ define([
     };
 
     /**
-     * It returns the next chunk of the String, which represents the number. Non numeric characters end the text.
+     * It returns the next chunk of the String, which represents the number. Non numeric characters end the text, except E for an approximate numeric literal.
      * @private
      * @param textToParse {String} The text to use in parsing.
      * @return {Number} The full chunk of number
