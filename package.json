@@ -1,5 +1,5 @@
 {
-  "name": "webworldwind-esa-oli",
+  "name": "webworldwind-esa",
   "version": "1.0.3",
   "description": "Web WorldWind ESA Custom version",
   "main": "build/dist/worldwind.min.js",
