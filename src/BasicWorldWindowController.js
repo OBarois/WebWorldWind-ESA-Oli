@@ -88,18 +88,39 @@ define([
              */
             this.zoomToMouseEnabled = true;
 
+
+            // Intentionally not documented.
+            this.doubleDragRecognizer = new DragRecognizer(this.wwd, null);
+            this.doubleDragRecognizer.numberOfClicks = 2;
+            this.doubleDragRecognizer.name = "doubledrag";
+            this.doubleDragRecognizer.addListener(this);
+
+
             // Intentionally not documented.
             this.primaryDragRecognizer = new DragRecognizer(this.wwd, null);
+            this.primaryDragRecognizer.name = "simpledrag";
             this.primaryDragRecognizer.addListener(this);
+
+            // this.doubleDragRecognizer.requireRecognizerToFail(this.primaryDragRecognizer);
+            // this.primaryDragRecognizer.recognizeSimultaneouslyWith(this.doubleDragRecognizer);
 
             // Intentionally not documented.
             this.secondaryDragRecognizer = new DragRecognizer(this.wwd, null);
             this.secondaryDragRecognizer.addListener(this);
             this.secondaryDragRecognizer.button = 2; // secondary mouse button
+            this.secondaryDragRecognizer.name = "secondarydrag";
 
+
+            // Intentionally not documented.
+            this.doublePanRecognizer = new PanRecognizer(this.wwd, null);
+            this.doublePanRecognizer.numberOfClicks = 2;
+            this.doublePanRecognizer.name = "doublepan";
+            this.doublePanRecognizer.addListener(this);
+            
             // Intentionally not documented.
             this.panRecognizer = new PanRecognizer(this.wwd, null);
             this.panRecognizer.addListener(this);
+
 
             // Intentionally not documented.
             this.pinchRecognizer = new PinchRecognizer(this.wwd, null);
@@ -126,21 +147,27 @@ define([
             this.pinchRecognizer.requireRecognizerToFail(this.tiltRecognizer);
             this.rotationRecognizer.requireRecognizerToFail(this.tiltRecognizer);
 
-            // Intentionally not documented.
+            // // Intentionally not documented.
             // this.tapRecognizer = new TapRecognizer(this.wwd, null);
             // this.tapRecognizer.addListener(this);
 
-            // Intentionally not documented.
-            // this.clickRecognizer = new ClickRecognizer(this.wwd, null);
-            // this.clickRecognizer.addListener(this);
+            // // Intentionally not documented.
+            //  this.clickRecognizer = new ClickRecognizer(this.wwd, null);
+            //  this.clickRecognizer.numberOfClicks = 2;
+            //  this.clickRecognizer.triggerOnDown = true;
+            //  this.clickRecognizer.addListener(this);
 
             // Intentionally not documented.
             this.flingRecognizer = new FlingRecognizer(this.wwd, null);
             this.flingRecognizer.addListener(this);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.primaryDragRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.doubleDragRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.panRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.doublePanRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.pinchRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.rotationRecognizer);
+            // this.flingRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
+            // this.flingRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
 
             // Intentionally not documented.
             this.beginPoint = new Vec2(0, 0);
@@ -220,31 +247,46 @@ define([
             else if (recognizer === this.tiltRecognizer) {
                 this.handleTilt(recognizer);
             }
-            // else if (recognizer === this.clickRecognizer || recognizer === this.tapRecognizer) {
-            //     this.handleClickOrTap(recognizer);
-            // }
+            else if (recognizer === this.doubleDragRecognizer || recognizer === this.doublePanRecognizer) {
+                this.handleDoubleDrag(recognizer);
+            }
             else if (recognizer === this.flingRecognizer) {
                 this.handleFling(recognizer);
             }
         };
 
         // Intentionally not documented.
-        // BasicWorldWindowController.prototype.handleClickOrTap = function (recognizer) {
-        //     if (recognizer.state === WorldWind.RECOGNIZED) {
-        //         var pickPoint = this.wwd.canvasCoordinates(recognizer.clientX, recognizer.clientY);
-        //
-        //         // Identify if the top picked object contains a URL for hyperlinking
-        //         var pickList = this.wwd.pick(pickPoint);
-        //         var topObject = pickList.topPickedObject();
-        //         // If the url object was appended, open the hyperlink
-        //         if (topObject &&
-        //             topObject.userObject &&
-        //             topObject.userObject.userProperties &&
-        //             topObject.userObject.userProperties.url) {
-        //             window.open(topObject.userObject.userProperties.url, "_blank");
-        //         }
-        //     }
-        // };
+        BasicWorldWindowController.prototype.handleDoubleDrag = function (recognizer) {
+            var navigator = this.wwd.navigator;
+            var state = recognizer.state;
+            var x = recognizer.clientX;
+            var y = recognizer.clientY;
+
+            // var scale = 1 + (Math.sqrt(x * x + y * y) );
+            var scale 
+            
+
+            if (state === WorldWind.BEGAN) {
+                this.beginRange = navigator.range;
+                this.beginPoint.set(recognizer.clientX, recognizer.clientY);
+                this.lastPoint.set(x,y)
+                this.pointerLocation = null;
+
+            } else if (state === WorldWind.CHANGED) {
+                
+
+                scale = 1 + (y-this.lastPoint[1])/100
+                this.moveZoom(this.beginPoint[0], this.beginPoint[1], scale);
+                this.lastPoint.set(x,y)
+
+                // Apply the scale to this navigator's properties.
+                navigator.range *= scale;
+                this.applyLimits();
+                this.wwd.redraw();
+            }
+    
+
+        };
 
         // Intentionally not documented.
         BasicWorldWindowController.prototype.handlePanOrDrag = function (recognizer) {
@@ -261,6 +303,7 @@ define([
             var state = recognizer.state;
             var x = recognizer.clientX;
             var y = recognizer.clientY;
+
 
             if (state === WorldWind.BEGAN) {
                 var ray = wwd.rayThroughScreenPoint(wwd.canvasCoordinates(x, y));
@@ -501,6 +544,7 @@ define([
 
         // Intentionally not documented.
         BasicWorldWindowController.prototype.handleFling3D = function (recognizer) {
+            console.log("fling")
             if (recognizer.state === WorldWind.RECOGNIZED) {
                 var navigator = this.wwd.navigator;
 
