@@ -137,7 +137,7 @@ define(['../gesture/GestureRecognizer'],
         PanRecognizer.prototype.touchStart = function (touch) {
             if (this.state == WorldWind.POSSIBLE) {
                 this.clickOrTapCounter += 1;
-                console.log(this.name+":"+this.clickOrTapCounter)
+                console.log(this.name+" (touchStart):"+this.clickOrTapCounter)
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
                 }
@@ -160,7 +160,7 @@ define(['../gesture/GestureRecognizer'],
             var dx = this.translationX,
                 dy = this.translationY,
                 distance = Math.sqrt(dx * dx + dy * dy);
-                console.log(this.name+":"+this.clickOrTapCounter+"/"+this.numberOfClicks+"  "+(this.clickOrTapCounter === this.numberOfClicks)+" Dist: "+distance+"/"+this.interpretDistance )
+                // console.log(this.name+":"+this.clickOrTapCounter+"/"+this.numberOfClicks+"  "+(this.clickOrTapCounter === this.numberOfClicks)+" Dist: "+distance+"/"+this.interpretDistance )
             return (distance > this.interpretDistance && this.clickOrTapCounter === this.numberOfClicks); // interpret touches when the touch centroid moves far enough
         };
 
