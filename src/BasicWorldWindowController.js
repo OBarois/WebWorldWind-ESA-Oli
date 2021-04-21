@@ -101,7 +101,7 @@ define([
             this.primaryDragRecognizer.name = "simpledrag";
             this.primaryDragRecognizer.addListener(this);
 
-            // this.doubleDragRecognizer.requireRecognizerToFail(this.primaryDragRecognizer);
+            // this.primaryDragRecognizer.requireRecognizerToFail(this.doubleDragRecognizer);
             // this.primaryDragRecognizer.recognizeSimultaneouslyWith(this.doubleDragRecognizer);
 
             // Intentionally not documented.
@@ -147,15 +147,22 @@ define([
             this.pinchRecognizer.requireRecognizerToFail(this.tiltRecognizer);
             this.rotationRecognizer.requireRecognizerToFail(this.tiltRecognizer);
 
-            // // Intentionally not documented.
-            // this.tapRecognizer = new TapRecognizer(this.wwd, null);
-            // this.tapRecognizer.addListener(this);
+            // Intentionally not documented.
+            this.tapRecognizer = new TapRecognizer(this.wwd, null);
+            this.tapRecognizer.recognizeOnLastTouchStart = true;
+            this.tapRecognizer.addListener(this);
 
-            // // Intentionally not documented.
-            //  this.clickRecognizer = new ClickRecognizer(this.wwd, null);
-            //  this.clickRecognizer.numberOfClicks = 2;
-            //  this.clickRecognizer.triggerOnDown = true;
-            //  this.clickRecognizer.addListener(this);
+            this.panRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
+            this.doublePanRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
+
+            // Intentionally not documented.
+             this.clickRecognizer = new ClickRecognizer(this.wwd, null);
+             this.clickRecognizer.numberOfClicks = 1;
+             this.clickRecognizer.triggerOnDown = true;
+             this.clickRecognizer.addListener(this);
+
+             this.primaryDragRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
+             this.doubleDragRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
 
             // Intentionally not documented.
             this.flingRecognizer = new FlingRecognizer(this.wwd, null);
@@ -166,8 +173,8 @@ define([
             this.flingRecognizer.recognizeSimultaneouslyWith(this.doublePanRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.pinchRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.rotationRecognizer);
-            // this.flingRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
-            // this.flingRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
 
             // Intentionally not documented.
             this.beginPoint = new Vec2(0, 0);

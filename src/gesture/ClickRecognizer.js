@@ -40,9 +40,15 @@ define(['../gesture/GestureRecognizer'],
              *
              * @type {Number}
              */
-            this.numberOfClicks = 1;
+             this.numberOfClicks = 1;
 
             /**
+             *
+             * @type {boolean}
+             */
+             this.triggerOnDown = false;
+
+             /**
              *
              * @type {Number}
              */
@@ -89,6 +95,9 @@ define(['../gesture/GestureRecognizer'],
                 };
                 this.clicks.push(click);
                 this.failAfterDelay(this.maxClickDuration); // fail if the click is down too long
+                if(this.triggerOnDown && this.clicks.length == this.numberOfClicks) {
+                    this.state = WorldWind.RECOGNIZED
+                }
             }
         };
 
