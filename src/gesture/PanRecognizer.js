@@ -141,6 +141,9 @@ define(['../gesture/GestureRecognizer'],
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
                 }
+                else {
+                    this.cancelFailAfterDelay()
+                }
             }
         };
 

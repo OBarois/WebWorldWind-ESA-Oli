@@ -32363,6 +32363,9 @@ define('gesture/DragRecognizer',['../gesture/GestureRecognizer'],
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
                 }
+                else {
+                    this.cancelFailAfterDelay()
+                }
             }
         };
 
@@ -32699,6 +32702,9 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
                 console.log(this.name+" (touchStart):"+this.clickOrTapCounter)
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
+                }
+                else {
+                    this.cancelFailAfterDelay()
                 }
             }
         };
