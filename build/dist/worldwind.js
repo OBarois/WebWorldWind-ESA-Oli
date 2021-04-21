@@ -32408,7 +32408,7 @@ define('gesture/DragRecognizer',['../gesture/GestureRecognizer'],
 
             self.timeout = window.setTimeout(function () {
                 self.timeout = null;
-                console.log(self.name+" ending "+self.state)
+                console.log(self.name+" ending (state: "+self.state)
                 self.state = WorldWind.FAILED; // fail if we haven't already reached a terminal state
                 
                 if (self.state == WorldWind.POSSIBLE) {
