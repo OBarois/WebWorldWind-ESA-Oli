@@ -33851,7 +33851,7 @@ define('BasicWorldWindowController',[
             } else if (state === WorldWind.CHANGED) {
                 
 
-                scale = 1 + (y-this.lastPoint[1])/100
+                scale = 1 - (y-this.lastPoint[1])/100
                 this.moveZoom(this.beginPoint[0], this.beginPoint[1], scale);
                 this.lastPoint.set(x,y)
 
@@ -34366,13 +34366,16 @@ define('BasicWorldWindowController',[
                 var distanceRemaining = Location.greatCircleDistance(lookAtLocation,
                     this.pointerLocation) * this.wwd.globe.equatorialRadius;
 
-                if (distanceRemaining <= 50000) {
-                    location = this.pointerLocation;
-                }
-                else {
-                    location = Location.interpolateGreatCircle(amount, this.pointerLocation,
-                        lookAtLocation, new Location(0, 0));
-                }
+                // if (distanceRemaining <= 50000) {
+                //     console.log("below")
+                //     location = this.pointerLocation;
+                // }
+                // else {
+                //     location = Location.interpolateGreatCircle(amount, this.pointerLocation,
+                //         lookAtLocation, new Location(0, 0));
+                // }
+                location = Location.interpolateGreatCircle(amount, this.pointerLocation,
+                    lookAtLocation, new Location(0, 0));
             }
             else {
                 var intermediateLocation = Location.interpolateGreatCircle(1 / amount, this.pointerLocation,
