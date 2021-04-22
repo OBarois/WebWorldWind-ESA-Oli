@@ -32629,7 +32629,7 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
             this.maxClickDuration = 500;
 
             // Intentionally not documented.
-            this.maxClickInterval = 400;
+            this.maxClickInterval = 200;
              
 
             /**
@@ -33760,7 +33760,7 @@ define('BasicWorldWindowController',[
             this.tapDownRecognizer.recognizeSimultaneouslyWith(this.doublePanRecognizer);
             // this.doublePanRecognizer.recognizeSimultaneouslyWith(this.tapDownRecognizer);
             // this.tapDownRecognizer.requireRecognizerToFail(this.pinchRecognizer);
-            // this.tapDownRecognizer.requireRecognizerToFail(this.rotationRecognizer);
+            // this.tapDownRecognizer.requireRecognizerToFail(this.doublePanRecognizer);
  
 
             // Intentionally not documented.

@@ -55,7 +55,7 @@ define(['../gesture/GestureRecognizer'],
             this.maxClickDuration = 500;
 
             // Intentionally not documented.
-            this.maxClickInterval = 400;
+            this.maxClickInterval = 200;
              
 
             /**
