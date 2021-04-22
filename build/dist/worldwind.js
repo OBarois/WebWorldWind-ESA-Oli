@@ -32149,6 +32149,9 @@ define('gesture/ClickRecognizer',['../gesture/GestureRecognizer'],
 
             // Intentionally not documented.
             this.timeout = null;
+
+            // Intentionally not documented.
+            this.name = '';
         };
 
         ClickRecognizer.prototype = Object.create(GestureRecognizer.prototype);
@@ -32175,10 +32178,11 @@ define('gesture/ClickRecognizer',['../gesture/GestureRecognizer'],
                     clientY: this.clientY
                 };
                 this.clicks.push(click);
-                this.failAfterDelay(this.maxClickDuration); // fail if the click is down too long
+                
                 if(this.triggerOnDown && this.clicks.length == this.numberOfClicks) {
                     this.state = WorldWind.RECOGNIZED
-                }
+                } 
+                this.failAfterDelay(this.maxClickDuration); // fail if the click is down too long
             }
         };
 
@@ -32417,7 +32421,6 @@ define('gesture/DragRecognizer',['../gesture/GestureRecognizer'],
 
             self.timeout = window.setTimeout(function () {
                 self.timeout = null;
-                console.log(self.name+" ending (state: "+self.state)
                 self.state = WorldWind.FAILED; // fail if we haven't already reached a terminal state
                 
                 if (self.state == WorldWind.POSSIBLE) {
@@ -32640,7 +32643,8 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
 
             this.timeout = null;
 
-            this.name = "";
+            this.name = "x";
+
             
         };
 
@@ -32706,9 +32710,12 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
         // Documented in superclass.
         // Documented in superclass.
         PanRecognizer.prototype.touchStart = function (touch) {
-            if (this.state == WorldWind.POSSIBLE) {
+            if (this.state != WorldWind.POSSIBLE) {
+                return
+            }
+
+            if (this.shouldRecognize()) {
                 this.clickOrTapCounter += 1;
-                console.log(this.name+" (touchStart):"+this.clickOrTapCounter)
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
                 }
@@ -32759,7 +32766,6 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
 
             self.timeout = window.setTimeout(function () {
                 self.timeout = null;
-                console.log(self.name+" ending "+self.state)
                 self.state = WorldWind.FAILED; // fail if we haven't already reached a terminal state
                 
                 if (self.state == WorldWind.POSSIBLE) {
@@ -32771,6 +32777,7 @@ define('gesture/PanRecognizer',['../gesture/GestureRecognizer'],
         // Intentionally not documented.
         PanRecognizer.prototype.cancelFailAfterDelay = function () {
             var self = this;
+
             if (self.timeout) {
                 window.clearTimeout(self.timeout);
                 self.timeout = null;
@@ -33196,7 +33203,11 @@ define('gesture/RotationRecognizer',[
 
          // Intentionally not documented.
          this.timeout = null;
-     };
+
+        // Intentionally not documented.
+        this.name = '';
+
+        };
 
      TapRecognizer.prototype = Object.create(GestureRecognizer.prototype);
 
@@ -33224,7 +33235,6 @@ define('gesture/RotationRecognizer',[
          }
 
          var tap;
-
          if (this.touchCount > this.numberOfTouches) {
              this.state = WorldWind.FAILED;
          } else if (this.touchCount == 1) { // first touch started
@@ -33705,6 +33715,7 @@ define('BasicWorldWindowController',[
             // Intentionally not documented.
             this.panRecognizer = new PanRecognizer(this.wwd, null);
             this.panRecognizer.addListener(this);
+            this.panRecognizer.name = "simplepan";
 
 
             // Intentionally not documented.
@@ -33733,21 +33744,34 @@ define('BasicWorldWindowController',[
             this.rotationRecognizer.requireRecognizerToFail(this.tiltRecognizer);
 
             // Intentionally not documented.
-            this.tapRecognizer = new TapRecognizer(this.wwd, null);
-            this.tapRecognizer.recognizeOnLastTouchStart = true;
-            this.tapRecognizer.addListener(this);
+            // used to stop fling animation on tap down (i.e. touch start  )
+            this.tapDownRecognizer = new TapRecognizer(this.wwd, null);
+            this.tapDownRecognizer.recognizeOnLastTouchStart = true;
+            this.tapDownRecognizer.name = 'tapstart';
+            this.tapDownRecognizer.addListener(this);
 
-            this.panRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
-            this.doublePanRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
+            this.panRecognizer.recognizeSimultaneouslyWith(this.tapDownRecognizer);
+            this.doublePanRecognizer.recognizeSimultaneouslyWith(this.pinchRecognizer);
+            this.doublePanRecognizer.recognizeSimultaneouslyWith(this.rotationRecognizer);
+            this.doublePanRecognizer.requireRecognizerToFail(this.tiltRecognizer);
+            this.tapDownRecognizer.recognizeSimultaneouslyWith(this.pinchRecognizer);
+            this.tapDownRecognizer.recognizeSimultaneouslyWith(this.rotationRecognizer);
+            this.tapDownRecognizer.recognizeSimultaneouslyWith(this.tiltRecognizer);
+            this.tapDownRecognizer.recognizeSimultaneouslyWith(this.doublePanRecognizer);
+            // this.doublePanRecognizer.recognizeSimultaneouslyWith(this.tapDownRecognizer);
+            // this.tapDownRecognizer.requireRecognizerToFail(this.pinchRecognizer);
+            // this.tapDownRecognizer.requireRecognizerToFail(this.rotationRecognizer);
+ 
 
             // Intentionally not documented.
-             this.clickRecognizer = new ClickRecognizer(this.wwd, null);
-             this.clickRecognizer.numberOfClicks = 1;
-             this.clickRecognizer.triggerOnDown = true;
-             this.clickRecognizer.addListener(this);
+            // used to stop fling animation on click down
+            this.clickDownRecognizer = new ClickRecognizer(this.wwd, null);
+            this.clickDownRecognizer.numberOfClicks = 1;
+            this.clickDownRecognizer.triggerOnDown = true;
+            this.clickDownRecognizer.addListener(this);
 
-             this.primaryDragRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
-             this.doubleDragRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
+            this.primaryDragRecognizer.recognizeSimultaneouslyWith(this.clickDownRecognizer);
+            this.doubleDragRecognizer.recognizeSimultaneouslyWith(this.clickDownRecognizer);
 
             // Intentionally not documented.
             this.flingRecognizer = new FlingRecognizer(this.wwd, null);
@@ -33758,8 +33782,8 @@ define('BasicWorldWindowController',[
             this.flingRecognizer.recognizeSimultaneouslyWith(this.doublePanRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.pinchRecognizer);
             this.flingRecognizer.recognizeSimultaneouslyWith(this.rotationRecognizer);
-            this.flingRecognizer.recognizeSimultaneouslyWith(this.clickRecognizer);
-            this.flingRecognizer.recognizeSimultaneouslyWith(this.tapRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.clickDownRecognizer);
+            this.flingRecognizer.recognizeSimultaneouslyWith(this.tapDownRecognizer);
 
             // Intentionally not documented.
             this.beginPoint = new Vec2(0, 0);
@@ -33812,6 +33836,7 @@ define('BasicWorldWindowController',[
 
         // Intentionally not documented.
         BasicWorldWindowController.prototype.gestureStateChanged = function (recognizer) {
+            // console.log("Event: "+recognizer.name+' / ' + recognizer.state)
             if (recognizer.state === WorldWind.BEGAN || recognizer.state === WorldWind.RECOGNIZED) {
                 this.cancelFlingAnimation();
             }
@@ -33880,6 +33905,12 @@ define('BasicWorldWindowController',[
 
         };
 
+        // Intentionally not documented.
+        BasicWorldWindowController.prototype.handleClick = function (recognizer) {
+            console.log("call back click?")
+        };
+
+        
         // Intentionally not documented.
         BasicWorldWindowController.prototype.handlePanOrDrag = function (recognizer) {
             if (this.wwd.globe.is2D()) {
@@ -34136,7 +34167,6 @@ define('BasicWorldWindowController',[
 
         // Intentionally not documented.
         BasicWorldWindowController.prototype.handleFling3D = function (recognizer) {
-            console.log("fling")
             if (recognizer.state === WorldWind.RECOGNIZED) {
                 var navigator = this.wwd.navigator;
 
@@ -34379,8 +34409,8 @@ define('BasicWorldWindowController',[
             var location;
 
             if (amount < 1) {
-                var distanceRemaining = Location.greatCircleDistance(lookAtLocation,
-                    this.pointerLocation) * this.wwd.globe.equatorialRadius;
+                // var distanceRemaining = Location.greatCircleDistance(lookAtLocation,
+                //     this.pointerLocation) * this.wwd.globe.equatorialRadius;
 
                 // if (distanceRemaining <= 50000) {
                 //     console.log("below")

@@ -68,6 +68,9 @@ define(['../gesture/GestureRecognizer'],
 
             // Intentionally not documented.
             this.timeout = null;
+
+            // Intentionally not documented.
+            this.name = '';
         };
 
         ClickRecognizer.prototype = Object.create(GestureRecognizer.prototype);
@@ -94,10 +97,11 @@ define(['../gesture/GestureRecognizer'],
                     clientY: this.clientY
                 };
                 this.clicks.push(click);
-                this.failAfterDelay(this.maxClickDuration); // fail if the click is down too long
+                
                 if(this.triggerOnDown && this.clicks.length == this.numberOfClicks) {
                     this.state = WorldWind.RECOGNIZED
-                }
+                } 
+                this.failAfterDelay(this.maxClickDuration); // fail if the click is down too long
             }
         };
 

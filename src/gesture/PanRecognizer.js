@@ -69,7 +69,8 @@ define(['../gesture/GestureRecognizer'],
 
             this.timeout = null;
 
-            this.name = "";
+            this.name = "x";
+
             
         };
 
@@ -135,9 +136,12 @@ define(['../gesture/GestureRecognizer'],
         // Documented in superclass.
         // Documented in superclass.
         PanRecognizer.prototype.touchStart = function (touch) {
-            if (this.state == WorldWind.POSSIBLE) {
+            if (this.state != WorldWind.POSSIBLE) {
+                return
+            }
+
+            if (this.shouldRecognize()) {
                 this.clickOrTapCounter += 1;
-                console.log(this.name+" (touchStart):"+this.clickOrTapCounter)
                 if(this.clickOrTapCounter != this.numberOfClicks) {
                     this.failAfterDelay(this.maxClickInterval); // fail if the interval between clicks is too long
                 }
@@ -188,7 +192,6 @@ define(['../gesture/GestureRecognizer'],
 
             self.timeout = window.setTimeout(function () {
                 self.timeout = null;
-                console.log(self.name+" ending "+self.state)
                 self.state = WorldWind.FAILED; // fail if we haven't already reached a terminal state
                 
                 if (self.state == WorldWind.POSSIBLE) {
@@ -200,6 +203,7 @@ define(['../gesture/GestureRecognizer'],
         // Intentionally not documented.
         PanRecognizer.prototype.cancelFailAfterDelay = function () {
             var self = this;
+
             if (self.timeout) {
                 window.clearTimeout(self.timeout);
                 self.timeout = null;

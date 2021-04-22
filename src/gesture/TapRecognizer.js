@@ -66,7 +66,11 @@
 
          // Intentionally not documented.
          this.timeout = null;
-     };
+
+        // Intentionally not documented.
+        this.name = '';
+
+        };
 
      TapRecognizer.prototype = Object.create(GestureRecognizer.prototype);
 
@@ -94,7 +98,6 @@
          }
 
          var tap;
-
          if (this.touchCount > this.numberOfTouches) {
              this.state = WorldWind.FAILED;
          } else if (this.touchCount == 1) { // first touch started
