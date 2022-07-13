@@ -1,7 +1,7 @@
 {
   "name": "webworldwind-esa",
   "version": "1.0.3",
-  "description": "Web WorldWind ESA Custom version",
+  "description": "Web WorldWind ESA Custom version with better nav",
   "main": "build/dist/worldwind.min.js",
   "homepage": "https://esafastprototyping.github.io/WebWorldWind-ESA/",
   "bugs": {
